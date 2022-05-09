@@ -5,7 +5,7 @@ const rateLimit = require("express-rate-limit");
 const limiter = rateLimit({
 
     windowMs: 15 * 60 * 1000,  // 15 minutes  
-    max: 5000,  // Limite chaque IP à 5 requêtes par `window` (ici, par 15 minutes) 
+    max: 5,  // Limite chaque IP à 5 requêtes par `window` (ici, par 15 minutes) 
     standardHeaders: true,  // Return rate limit info dans les en-têtes `RateLimit-*` 
     legacyHeaders: false,  // Désactive les en-têtes `X-RateLimit-*`
 
