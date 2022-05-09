@@ -1,28 +1,25 @@
-// Configuration de multer (multer est un package de gestion de fichiers pour node.js)
 
-const multer = require('multer');// sert à gérer les fichiers uploadés
+const multer = require('multer');// Import the multer middleware for upload the files "images"
 
-// const MIME_TYPE ={ // sert à définir les types de fichiers autorisés
-//     'image/png': 'png',
-//     'image/jpeg': 'jpg',
-//     'image/jpg': 'jpg'
+const MIME_TYPE = { // Object containing the MIME type of the files that can be uploaded
+    'image/png': 'png',
+    'image/jpeg': 'jpg',
+    'image/jpg': 'jpg'
 
-// }; ________________________________________________EST-CE UTILE ?
+};
 
-const storage = multer.diskStorage({ // sert à définir le chemin d'enregistrement des fichiers
-    destination:(req,file,cb)=>{ 
-        cb(null,'images');
+const storage = multer.diskStorage({ // Create the storage for the files
+
+    destination: (req, file, cb) => { // Create the destination for the files
+        cb(null, 'images');
     },
-    filename:(req,file,cb)=>{ // sert à définir le nom du fichier
-        const name = file.originalname; // sépare les caractères d'un nom de fichier
-       // const extension = MIME_TYPE[file.mimetype]; 
-      // cb(null,name + Date.now() + '.' + extension); 
-        cb(null,name + '_' + Date.now() + '.' + file.mimetype.split('/')[1]); 
-     
+    filename: (req, file, cb) => { // Create the filename for the files
+        const name = file.originalname;
+        const extension = MIME_TYPE[file.mimetype];
+        cb(null, name + '_' + Date.now() + '.' + extension);
     }
-
 });
-module.exports = multer({storage}).single('image');// exporte le middleware multer avec le storage défini précédemment 
+
+module.exports = multer({ storage }).single('image');// Export the multer middleware with the storage
 
 
-////// Voir pour les - des noms des images ///////////////////////////////////////////////////////////////////////////////////////////////

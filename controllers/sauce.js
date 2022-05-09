@@ -1,21 +1,16 @@
 
-const Sauce = require('../models/Sauce');
-const fs = require('fs');
+const Sauce = require('../models/Sauce'); // Import sauce model
+const fs = require('fs');// Fs is required to delete the image from the folder when we delete the sauce
 
 
-exports.createSauce = (req, res, next) => {
+exports.createSauce = (req, res, next) => { // Create a new sauce 
 
   const sauce = JSON.parse(req.body.sauce);
   const imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
 
-  console.log("imageUrl =", imageUrl);
-
   const { userId, name, description, manufacturer, mainPepper, heat } = sauce;
-  console.log("Sauce =", sauce);
-  console.log({ body: req.body.sauce });
-  console.log({ file: req.file });
 
-  const sauceData = new Sauce({
+  const sauceData = new Sauce({// Sauce data is a new instance of the Sauce model with the data we received
     userId,
     name,
     description,
@@ -29,66 +24,72 @@ exports.createSauce = (req, res, next) => {
     usersDisliked: [],
     sauce: sauce
   });
-  sauceData.save()
+  sauceData.save()// The new instance is saved in the database
     .then(() => res.status(201).json({ message: 'Sauce créé !' }))
     .catch(error => res.status(400).json({ error }));
 }
 
-exports.modifySauce = (req, res, next) => {
+exports.modifySauce = (req, res, next) => { // ModifySauce is a function that modifies the sauce with the data we receive
+
+
   const sauceObject = req.file ?
+
     {
       ...JSON.parse(req.body.sauce),
-      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+
+
     } : { ...req.body }
 
-  Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
+  Sauce.findByIdAndUpdate({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
     .then(res.status(200).json({ message: "Sauce modifiée" }))
     .catch(error => res.status(400).json({ error }))
 }
 
-exports.deleteSauce = (req, res, next) => {
-  Sauce.findOne({ _id: req.params.id })
+exports.deleteSauce = (req, res, next) => { // DeleteSauce is a function that deletes the sauce with the id we receive
+
+  Sauce.findByIdAndDelete(req.params.id)
     .then(sauce => {
       const filename = sauce.imageUrl.split("/images/")[1]
       fs.unlink(`images/${filename}`, () => {
-        Sauce.deleteOne({ _id: req.params.id })
-          .then(res.status(200).json({ message: "Sauce supprimée" }))
-          .catch(error => res.status(400).json({ error }))
-
+        res.status(200).json({ message: "Sauce supprimée" })
       })
     })
     .catch(error => res.status(500).json({ error }))
-
 }
 
-exports.getOneSauce = (req, res, next) => { // l'utilisateur envoie une requête GET vers /api/stuff))
-  Sauce.findOne({ _id: req.params.id }) // on récupère l'objet avec l'id passé en paramètre
-    .then(sauce => res.status(200).json(sauce)) // on renvoie le résultat de la récupération
-    .catch(error => res.status(404).json({ error })); // si la récupération échoue, on renvoie un statut 404 avec un message d'erreur
+
+
+
+
+exports.getOneSauce = (req, res, next) => { // GetOneSauce is a function that returns the sauce with the id we receive
+  Sauce.findOne({ _id: req.params.id })
+    .then(sauce => res.status(200).json(sauce))
+    .catch(error => res.status(404).json({ error }));
 }
 
 exports.getAllSauces = (req, res, next) => {
-  Sauce.find() // on récupère tous les objets sauces
-    .then(sauces => res.status(200).json(sauces)) // on renvoie le résultat
-    .catch(error => res.status(400).json({ error })); // si la récupération échoue, on renvoie un statut 400 avec un message d'erreur
+  Sauce.find()
+    .then(sauces => res.status(200).json(sauces))
+    .catch(error => res.status(400).json({ error }));
 }
 
-//_______________________________________________ Like and Dislike 
+//_______________________________________________ LIKE AND DISLIKE  
 
-exports.likeAndDislike = (req, res, next) => {
+exports.likeAndDislike = (req, res, next) => { // LikeAndDislike is a function that adds or removes a like or dislike to the sauce with the id we receive
   let like = req.body.like
   let userId = req.body.userId
   let sauceId = req.params.id
 
-  switch (like) {
-    case 1:
+  switch (like) { // Switch is used to add or remove a like or dislike
+    case 1:// Case 1 is used to add a like
       Sauce.updateOne({ _id: sauceId }, { $push: { usersLiked: userId }, $inc: { likes: +1 } })
         .then(() => res.status(200).json({ message: `J'aime` }))
         .catch((error) => res.status(400).json({ error }))
 
-      break;
+      break;// Break is used to stop the switch
 
-    case 0:
+    case 0: // Case 0 is used to remove a like
       Sauce.findOne({ _id: sauceId })
         .then((sauce) => {
           if (sauce.usersLiked.includes(userId)) {
@@ -105,14 +106,14 @@ exports.likeAndDislike = (req, res, next) => {
         .catch((error) => res.status(404).json({ error }))
       break;
 
-    case -1:
+    case -1:// Case -1 is used to add a dislike
       Sauce.updateOne({ _id: sauceId }, { $push: { usersDisliked: userId }, $inc: { dislikes: +1 } })
         .then(() => { res.status(200).json({ message: `Je n'aime pas` }) })
         .catch((error) => res.status(400).json({ error }))
       break;
 
-    default:
-      console.log(error);
+    default:// Default is used to remove a dislike
+      
   }
 }
 

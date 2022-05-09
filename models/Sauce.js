@@ -1,9 +1,7 @@
+
 const mongoose = require('mongoose');
 
-//La méthode  Schema  de Mongoose te permet de créer un schéma de données 
-//pour ta base de données MongoDB.
-
-const sauceSchema = mongoose.Schema({//On définit les propriétés de notre modèle.
+const sauceSchema = mongoose.Schema({// Create the sauce schema for the database
 
   userId: { type: String, required: true },
   name: { type: String, required: true },
@@ -17,9 +15,9 @@ const sauceSchema = mongoose.Schema({//On définit les propriétés de notre mod
   usersLiked: { type: [String], required: true },
   usersDisliked: { type: [String], required: true },
 
+
 });
 
-//La méthode  "model"  transforme ce modèle en un modèle utilisable.
 module.exports = mongoose.model('Sauce DATA', sauceSchema);
 
 

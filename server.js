@@ -1,7 +1,8 @@
-const http = require('http');
-const app = require('./app');
+const http = require('http');// Define HTTP server 
 
-const normalizePort = val => {
+const app = require('./app');// App is defined in app.js and is the express application
+
+const normalizePort = val => { // Normalize port number to avoid issues 
   const port = parseInt(val, 10);
 
   if (isNaN(port)) {
@@ -12,7 +13,7 @@ const normalizePort = val => {
   }
   return false;
 };
-const port = normalizePort(process.env.PORT ||'3000');
+const port = normalizePort(process.env.PORT || '3000'); // Define the server to listen on the port 3000 and the errorHandler to handle the errors
 app.set('port', port);
 
 const errorHandler = error => {
@@ -20,7 +21,7 @@ const errorHandler = error => {
     throw error;
   }
   const address = server.address();
-  const bind = typeof address === 'string' ? 'pipe ' + address : 'port: ' + port;
+  const bind = typeof address === 'string' ? 'pipe ' + address : 'port: ' + port;  
   switch (error.code) {
     case 'EACCES':
       console.error(bind + ' requires elevated privileges.');
@@ -35,7 +36,7 @@ const errorHandler = error => {
   }
 };
 
-const server = http.createServer(app);
+const server = http.createServer(app);// Server is the HTTP server created with the express application
 
 server.on('error', errorHandler);
 server.on('listening', () => {
@@ -44,11 +45,7 @@ server.on('listening', () => {
   console.log('Listening on ' + bind);
 });
 
-server.listen(port);
+server.listen(port);// Listen on the port defined in the variable port
 
 
 
-
-
-
-// question : les messages console etc doivent etre en anglais ?
