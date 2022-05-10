@@ -7,6 +7,7 @@ const { check, validationResult } = require('express-validator');
 
 
 const validate = [
+    
     check('email')
         .isEmail()
         .isLength({ min: 5 })
