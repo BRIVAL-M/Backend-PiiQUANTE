@@ -54,27 +54,35 @@ exports.createSauce = (req, res, next) => { // Create a new sauce
 // }
 
 
+
 exports.modifySauce = (req, res, next) => { // ModifySauce is a function that modifies the sauce with the data we receive
 
-  const sauceObject = req.file ?
+const sauceObject = req.file ? 
 
     {
       ...JSON.parse(req.body.sauce),
 
       imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
 
-    } : { ...req.body };
+    } : { ...req.body,
+    };
 
   Sauce.findByIdAndUpdate({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
 
     .then(sauce => {
-      const filename = sauce.imageUrl.split("/images/")[1]
-      fs.unlink(`images/${filename}`, () => {
-        res.status(200).json({ message: "Sauce modifiée !" })
-      })
+     
+     if (req.file) {
+        const filename = sauce.imageUrl.split("/images/")[1]
+        fs.unlink(`images/${filename}`, () => {
+          res.status(200).json({ message: 'Sauce modifiée !' });
+        });
+      } else {
+        res.status(200).json({ message: 'Sauce modifiée !' });
+      }
     })
     .catch(error => res.status(500).json({ error }))
 }
+
 
 exports.deleteSauce = (req, res, next) => { // DeleteSauce is a function that deletes the sauce with the id we receive
 
